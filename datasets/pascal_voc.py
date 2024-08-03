@@ -7,6 +7,7 @@ import scipy.io as sio
 import PIL
 import numpy as np
 import torch
+import ds_utils
 
 
 from torchvision.ops import box_iou
@@ -162,7 +163,11 @@ class pascal_voc(imdb):
         box_list = []
         for i in range(raw_data.shape[0]):
             boxes = raw_data[i][:, (1, 0, 3, 2)] - 1
-            
+            keep = ds_utils.unique_boxes(boxes)
+            boxes = boxes[keep, :]
+            keep = ds_utils.filter_small_boxes(boxes, self.config['min_size'])
+            boxes = boxes[keep, :]
+            box_list.append(boxes)
 
         return self.create_roidb_from_box_list(box_list, gt_roidb)
 
@@ -199,6 +204,7 @@ class pascal_voc(imdb):
                 filename = self._get_voc_results_file_template().format(cls)
                 os.remove(filename)
 
+    """
     def _do_python_eval(self, output_dir='output'):
         annopath = os.path.join(
             self._devkit_path,
@@ -231,6 +237,7 @@ class pascal_voc(imdb):
             print(f'AP for {cls} = {ap:.4f} ')
             with open(os.path.join(output_dir, cls + '_pr.pkl'), 'w') as f:
                 _pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
+    """
     
     def _write_voc_results_file(self, all_boxes):
         for cls_ind, cls in enumerate(self.classes):
