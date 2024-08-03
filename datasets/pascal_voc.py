@@ -7,13 +7,12 @@ import scipy.io as sio
 import PIL
 import numpy as np
 import torch
-import ds_utils
 
 
 from torchvision.ops import box_iou
 from .imdb import imdb
 from .imdb import ROOT_DIR
-
+from .ds_utils import *
 from model.utils.config import cfg
 
 class pascal_voc(imdb):
@@ -29,11 +28,11 @@ class pascal_voc(imdb):
                          'cow', 'diningtable', 'dog', 'horse',
                          'motorbike', 'person', 'pottedplant',
                          'sheep', 'sofa', 'train', 'tvmonitor')
-        self._class_to_ind = dict(zip(self.classes, range(self.num_classes)))
+        self._class_to_ind = dict(zip(self._classes, range(self.num_classes)))
         self._image_ext = '.jpg'
         self._iamge_index = self._load_image_set_index()
         self._roidb_handler = self.gt_roidb
-        self._salt = str(uuid.uuid64())
+        self._salt = str(uuid.uuid4())
         self._comp_id = 'comp4'
         
         self.config = {
@@ -67,7 +66,7 @@ class pascal_voc(imdb):
         return image_index
     
     def _get_default_path(self):
-        return os.path.join(cfg.DATA_DIR, 'VOCdevkit' + self._year)
+        return os.path.join(cfg.DATA_DIR, 'VOCdevkit')
 
     def gt_roidb(self):
         cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')

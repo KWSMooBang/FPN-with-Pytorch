@@ -5,6 +5,7 @@ import scipy.sparse
 import torch
 
 from torchvision.ops import box_iou
+from model.utils.config import cfg
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), '..', '..')
 
@@ -64,6 +65,13 @@ class imdb(object):
             return self._roidb
         self._roidb = self.roidb_handler()
         return self._roidb
+    
+    @property
+    def cache_path(self):
+        cache_path = os.path.abspath(os.path.join(cfg.DATA_DIR, 'cache'))
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
+        return cache_path
 
     @property
     def num_images(self):
@@ -217,7 +225,7 @@ class imdb(object):
             ious = scipy.sparse.csr_matrix(ious)
             roidb.append({
                 'boxes': boxes,
-                'gt_classes': np.zeros((num_boxes, ) dtype=np.int32),
+                'gt_classes': np.zeros((num_boxes, ), dtype=np.int32),
                 'gt_ious': ious,
                 'flipped': False,
                 'seg_areas': np.zeros((num_boxes, ), dtype=np.float32)
